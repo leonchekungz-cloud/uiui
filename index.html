@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Ganti Outfit & Edit Foto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .outfit-btn.selected {
+            background-color: #3b82f6;
+            border-color: #60a5fa;
+            color: white;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .toast-enter {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        .toast-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 300ms ease-in-out;
+        }
+        .toast-exit {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast-exit-active {
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 300ms ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4 md:px-8">
+
+    <header class="w-full max-w-6xl flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                <i class="fa-solid fa-wand-magic-sparkles mr-2 text-blue-400"></i>AI Outfit Changer
+            </h1>
+            <p class="text-gray-400 mt-2 text-sm md:text-base">Unggah foto, pilih gaya, dan dapatkan tampilan closeup baru dengan wajah asli Anda.</p>
+        </div>
+    </header>
+
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Kolom Kiri: Input & Kontrol -->
+        <section class="glass-panel rounded-2xl p-6 flex flex-col gap-6">
+            
+            <!-- Area Upload -->
+            <div>
+                <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
+                    <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex justify-center items-center text-sm">1</span> 
+                    Unggah Foto Wajah
+                </h2>
+                <div id="dropZone" class="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-blue-500 transition-colors bg-gray-800/50 relative overflow-hidden group">
+                    <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/jpeg, image/png, image/webp">
+                    
+                    <div id="uploadPlaceholder" class="flex flex-col items-center justify-center gap-3">
+                        <div class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                        </div>
+                        <p class="text-gray-300 font-medium">Klik atau seret foto ke sini</p>
+                        <p class="text-gray-500 text-xs">Format: JPG, PNG. Pastikan wajah terlihat jelas.</p>
+                    </div>
+
+                    <div id="imagePreviewContainer" class="hidden absolute inset-0 bg-gray-900 flex items-center justify-center">
+                        <img id="imagePreview" src="" alt="Preview" class="h-full w-full object-contain">
+                        <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fa-solid fa-pen text-3xl mb-2"></i>
+                            <span class="text-sm font-medium">Ganti Foto</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Area Pilihan Outfit -->
+            <div>
+                <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
+                    <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex justify-center items-center text-sm">2</span> 
+                    Pilih Gaya Pakaian
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="outfitContainer">
+                    <button class="outfit-btn selected glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Jas formal profesional yang rapi, gaya eksekutif">
+                        <i class="fa-solid fa-user-tie mb-1 block text-lg"></i> Jas Formal
+                    </button>
+                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Kemeja Batik tradisional Indonesia yang mewah dan elegan">
+                        <i class="fa-solid fa-shirt mb-1 block text-lg"></i> Batik
+                    </button>
+                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Pakaian kasual santai yang modis, t-shirt dan jaket ringan">
+                        <i class="fa-solid fa-mug-hot mb-1 block text-lg"></i> Kasual
+                    </button>
+                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Jaket kulit hitam bergaya streetwear yang keren">
+                        <i class="fa-solid fa-motorcycle mb-1 block text-lg"></i> Jaket Kulit
+                    </button>
+                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Pakaian gaya cyberpunk futuristik dengan aksen neon">
+                        <i class="fa-brands fa-space-awesome mb-1 block text-lg"></i> Cyberpunk
+                    </button>
+                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Pakaian musim dingin, sweater rajut tebal dan syal">
+                        <i class="fa-solid fa-snowflake mb-1 block text-lg"></i> Musim Dingin
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tombol Generate -->
+            <div class="mt-auto pt-4">
+                <button id="generateBtn" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-transform transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2" disabled>
+                    <i class="fa-solid fa-wand-magic"></i> Mulai Generate
+                </button>
+            </div>
+        </section>
+
+        <!-- Kolom Kanan: Hasil & Galeri -->
+        <section class="flex flex-col gap-6">
+            
+            <!-- Hasil Utama -->
+            <div class="glass-panel rounded-2xl p-6 flex flex-col h-[500px]">
+                <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
+                    <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex justify-center items-center text-sm">3</span> 
+                    Hasil Closeup
+                </h2>
+                
+                <div class="flex-1 bg-gray-900 rounded-xl border border-gray-700 relative overflow-hidden flex flex-col items-center justify-center">
+                    
+                    <!-- Loading State -->
+                    <div id="loadingState" class="hidden absolute inset-0 bg-gray-900/90 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
+                        <div class="loader mb-4"></div>
+                        <p class="text-blue-400 font-medium animate-pulse">Sedang merias wajah dan mengganti pakaian...</p>
+                        <p class="text-xs text-gray-500 mt-2 text-center px-6">Proses ini menggunakan AI Gemini untuk menganalisis dan mempertahankan wajah Anda dengan presisi.</p>
+                    </div>
+
+                    <!-- Placeholder -->
+                    <div id="resultPlaceholder" class="text-gray-500 flex flex-col items-center">
+                        <i class="fa-regular fa-image text-5xl mb-3 opacity-50"></i>
+                        <p>Hasil foto akan muncul di sini</p>
+                    </div>
+
+                    <!-- Final Image -->
+                    <img id="finalImage" src="" alt="Hasil Generate" class="hidden h-full w-full object-cover">
+                </div>
+
+                <!-- Aksi -->
+                <div class="mt-4 flex gap-3">
+                    <a id="downloadBtn" href="#" download="ai_outfit_result.png" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-medium py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition disabled:opacity-50 pointer-events-none opacity-50 text-center">
+                        <i class="fa-solid fa-download"></i> Unduh Foto
+                    </a>
+                </div>
+            </div>
+
+            <!-- Galeri Mini (Beberapa Outfit) -->
+            <div class="glass-panel rounded-2xl p-6">
+                <h3 class="text-lg font-medium mb-3">Riwayat Hasil (Klik untuk lihat)</h3>
+                <div id="galleryContainer" class="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+                    <p class="text-gray-500 text-sm italic w-full text-center py-4" id="galleryEmpty">Belum ada foto yang dihasilkan.</p>
+                    <!-- Thumbnail akan ditambahkan via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        // --- State Management ---
+        const state = {
+            uploadedFileBase64: null,
+            uploadedMimeType: null,
+            selectedOutfitText: "Jas formal profesional yang rapi, gaya eksekutif", // Default
+            isGenerating: false,
+            gallery: [] // Menyimpan riwayat gambar
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            fileInput: document.getElementById('fileInput'),
+            uploadPlaceholder: document.getElementById('uploadPlaceholder'),
+            imagePreviewContainer: document.getElementById('imagePreviewContainer'),
+            imagePreview: document.getElementById('imagePreview'),
+            outfitBtns: document.querySelectorAll('.outfit-btn'),
+            generateBtn: document.getElementById('generateBtn'),
+            loadingState: document.getElementById('loadingState'),
+            resultPlaceholder: document.getElementById('resultPlaceholder'),
+            finalImage: document.getElementById('finalImage'),
+            downloadBtn: document.getElementById('downloadBtn'),
+            galleryContainer: document.getElementById('galleryContainer'),
+            galleryEmpty: document.getElementById('galleryEmpty'),
+            toastContainer: document.getElementById('toastContainer')
+        };
+
+        // --- Event Listeners ---
+
+        // 1. Handling File Upload
+        els.fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFileSelection(file);
+        });
+
+        // Drag & Drop handling
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-500', 'bg-blue-900/20');
+        });
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-900/20');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-900/20');
+            if (e.dataTransfer.files.length) {
+                els.fileInput.files = e.dataTransfer.files;
+                handleFileSelection(e.dataTransfer.files[0]);
+            }
+        });
+
+        // 2. Handling Outfit Selection
+        els.outfitBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove selected class from all
+                els.outfitBtns.forEach(b => b.classList.remove('selected'));
+                // Add to clicked
+                btn.classList.add('selected');
+                // Update state
+                state.selectedOutfitText = btn.getAttribute('data-outfit');
+            });
+        });
+
+        // 3. Handling Generate Button
+        els.generateBtn.addEventListener('click', handleGenerate);
+
+        // --- Helper Functions ---
+
+        function handleFileSelection(file) {
+            if (!file) return;
+            
+            // Validasi tipe file
+            if (!file.type.startsWith('image/')) {
+                showToast("Tolong unggah file berupa gambar (JPG, PNG).", "error");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const result = e.target.result; // Data URL
+                
+                // Pisahkan base64 data dan mime type untuk API
+                const mimeType = result.split(';')[0].split(':')[1];
+                const base64Data = result.split(',')[1];
+                
+                state.uploadedFileBase64 = base64Data;
+                state.uploadedMimeType = mimeType;
+
+                // Tampilkan Preview
+                els.imagePreview.src = result;
+                els.uploadPlaceholder.classList.add('hidden');
+                els.imagePreviewContainer.classList.remove('hidden');
+                
+                // Aktifkan tombol generate
+                els.generateBtn.removeAttribute('disabled');
+                
+                showToast("Foto berhasil dimuat!", "success");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function handleGenerate() {
+            if (!state.uploadedFileBase64) {
+                showToast("Harap unggah foto terlebih dahulu.", "error");
+                return;
+            }
+
+            // Update UI State
+            state.isGenerating = true;
+            els.generateBtn.setAttribute('disabled', 'true');
+            els.loadingState.classList.remove('hidden');
+            els.resultPlaceholder.classList.add('hidden');
+            els.finalImage.classList.add('hidden');
+            els.downloadBtn.classList.add('opacity-50', 'pointer-events-none');
+
+            try {
+                // Siapkan prompt super spesifik untuk menjaga wajah dan crop closeup
+                const prompt = `Tugas: Ubah pakaian orang dalam gambar menjadi: ${state.selectedOutfitText}.
+ATURAN SANGAT PENTING: 
+1. Anda WAJIB mempertahankan wajah asli (mata, hidung, mulut, struktur wajah, warna kulit) SAMA PERSIS 100% tanpa perubahan sedikitpun. Ini bukan pembuatan karakter baru, ini adalah manipulasi pakaian.
+2. Hasil akhir foto harus berbingkai 'Close-up Portrait' (setengah badan ke atas) dengan fokus pada wajah dan pakaian atas.
+3. Sesuaikan pencahayaan agar menyatu secara realistis.`;
+
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: prompt },
+                            {
+                                inlineData: {
+                                    mimeType: state.uploadedMimeType || "image/jpeg",
+                                    data: state.uploadedFileBase64
+                                }
+                            }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseModalities: ['IMAGE'],
+                        // Menggunakan aspect ratio portrait untuk closeup terbaik
+                        imageConfig: { aspectRatio: "3:4" }
+                    }
+                };
+
+                // Panggil API (Key kosong di-handle oleh environment Canvas)
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // Ekstrak gambar dari respons
+                const part = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                
+                if (part && part.inlineData) {
+                    const imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                    displayResult(imageUrl);
+                } else {
+                    throw new Error("Gambar gagal dihasilkan atau format respons tidak dikenali.");
+                }
+
+            } catch (error) {
+                console.error("Generation Error:", error);
+                showToast("Terjadi kesalahan saat memproses gambar. Coba lagi.", "error");
+                
+                // Revert UI if error
+                els.resultPlaceholder.classList.remove('hidden');
+                els.loadingState.classList.add('hidden');
+            } finally {
+                state.isGenerating = false;
+                els.generateBtn.removeAttribute('disabled');
+            }
+        }
+
+        function displayResult(imageUrl) {
+            // Sembunyikan loading, tampilkan gambar
+            els.loadingState.classList.add('hidden');
+            els.finalImage.src = imageUrl;
+            els.finalImage.classList.remove('hidden');
+
+            // Setup tombol download
+            els.downloadBtn.href = imageUrl;
+            // Buat nama file unik
+            els.downloadBtn.download = `outfit_closeup_${new Date().getTime()}.png`;
+            els.downloadBtn.classList.remove('opacity-50', 'pointer-events-none');
+
+            // Simpan ke galeri
+            addToGallery(imageUrl);
+            showToast("Foto berhasil dibuat!", "success");
+        }
+
+        function addToGallery(imageUrl) {
+            if (state.gallery.length === 0) {
+                els.galleryEmpty.style.display = 'none';
+            }
+            
+            // Simpan state
+            state.gallery.unshift(imageUrl);
+
+            // Buat elemen thumbnail
+            const thumb = document.createElement('img');
+            thumb.src = imageUrl;
+            thumb.className = "h-20 w-20 object-cover rounded-lg border-2 border-transparent hover:border-blue-500 cursor-pointer flex-shrink-0 transition-colors";
+            
+            // Ketika thumbnail diklik, tampilkan di penampil utama
+            thumb.addEventListener('click', () => {
+                els.finalImage.src = imageUrl;
+                els.downloadBtn.href = imageUrl;
+                // Highlight thumbnail aktif
+                document.querySelectorAll('#galleryContainer img').forEach(img => img.classList.remove('border-blue-500'));
+                thumb.classList.add('border-blue-500');
+            });
+
+            // Tambahkan ke container di posisi paling depan
+            els.galleryContainer.insertBefore(thumb, els.galleryContainer.firstChild);
+            
+            // Set as active
+            document.querySelectorAll('#galleryContainer img').forEach(img => img.classList.remove('border-blue-500'));
+            thumb.classList.add('border-blue-500');
+        }
+
+        // --- Custom Toast Notification ---
+        function showToast(message, type = "info") {
+            const toast = document.createElement('div');
+            
+            // Warna berdasarkan tipe
+            let bgClass = "bg-gray-800 border-gray-600";
+            let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
+            if (type === "success") {
+                bgClass = "bg-green-900 border-green-700 text-white";
+                icon = '<i class="fa-solid fa-circle-check text-green-400"></i>';
+            } else if (type === "error") {
+                bgClass = "bg-red-900 border-red-700 text-white";
+                icon = '<i class="fa-solid fa-triangle-exclamation text-red-400"></i>';
+            }
+
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl border ${bgClass} toast-enter-active`;
+            toast.innerHTML = `${icon} <span class="text-sm font-medium">${message}</span>`;
+            
+            els.toastContainer.appendChild(toast);
+
+            // Hilangkan setelah 3 detik
+            setTimeout(() => {
+                toast.classList.replace('toast-enter-active', 'toast-exit-active');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
