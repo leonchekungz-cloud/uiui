@@ -3,449 +3,621 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Ganti Outfit & Edit Foto</title>
+    <title>AI Outfit Changer & Portrait Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
+            background-color: #0b1120;
             color: #f8fafc;
         }
         .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
-        .outfit-btn.selected {
-            background-color: #3b82f6;
-            border-color: #60a5fa;
-            color: white;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        .outfit-card.selected {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
         }
-        .loader {
+        .loader-spinner {
             border: 4px solid rgba(255, 255, 255, 0.1);
             border-left-color: #3b82f6;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+            width: 48px;
+            height: 48px;
+            animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .toast-enter {
-            transform: translateY(100%);
-            opacity: 0;
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
         }
-        .toast-enter-active {
-            transform: translateY(0);
-            opacity: 1;
-            transition: all 300ms ease-in-out;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 4px;
         }
-        .toast-exit {
-            transform: translateY(0);
-            opacity: 1;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 4px;
         }
-        .toast-exit-active {
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 300ms ease-in-out;
+        .toast-active {
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-10 px-4 md:px-8">
+<body class="min-h-screen flex flex-col items-center py-6 px-4 md:px-8">
 
-    <header class="w-full max-w-6xl flex justify-between items-center mb-8">
+    <header class="w-full max-w-6xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-gray-800 pb-6">
         <div>
-            <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                <i class="fa-solid fa-wand-magic-sparkles mr-2 text-blue-400"></i>AI Outfit Changer
-            </h1>
-            <p class="text-gray-400 mt-2 text-sm md:text-base">Unggah foto, pilih gaya, dan dapatkan tampilan closeup baru dengan wajah asli Anda.</p>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xl text-white"></i>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
+                    AI Outfit Studio Close-Up
+                </h1>
+            </div>
+            <p class="text-gray-400 text-sm mt-1">Ganti gaya pakaian dengan AI Gemini. Wajah asli dijamin 100% konsisten dalam tampilan close-up portrait.</p>
+        </div>
+        <div class="flex items-center gap-2 bg-blue-950/50 border border-blue-500/30 px-3 py-1.5 rounded-full text-xs text-blue-300">
+            <i class="fa-solid fa-shield-halved text-blue-400"></i>
+            <span>Facial Identity Lock Active</span>
         </div>
     </header>
 
-    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- Kolom Kiri: Input & Kontrol -->
-        <section class="glass-panel rounded-2xl p-6 flex flex-col gap-6">
+        <!-- Sidebar Kontrol Input (5 Kolom) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
             
-            <!-- Area Upload -->
-            <div>
-                <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
-                    <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex justify-center items-center text-sm">1</span> 
-                    Unggah Foto Wajah
-                </h2>
-                <div id="dropZone" class="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-blue-500 transition-colors bg-gray-800/50 relative overflow-hidden group">
+            <!-- Step 1: Upload Foto -->
+            <div class="glass-panel rounded-2xl p-5 flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+                        Unggah Foto Asli Wajah
+                    </h2>
+                    <button id="webcamBtn" class="text-xs bg-gray-800 hover:bg-gray-700 text-blue-400 border border-gray-700 px-2.5 py-1 rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-camera"></i> Kamera
+                    </button>
+                </div>
+
+                <div id="dropZone" class="border-2 border-dashed border-gray-700 hover:border-blue-500 transition-colors rounded-xl p-6 text-center cursor-pointer bg-gray-900/50 relative overflow-hidden group min-h-[200px] flex items-center justify-center">
                     <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/jpeg, image/png, image/webp">
                     
-                    <div id="uploadPlaceholder" class="flex flex-col items-center justify-center gap-3">
-                        <div class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                    <div id="uploadPlaceholder" class="flex flex-col items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
                         </div>
-                        <p class="text-gray-300 font-medium">Klik atau seret foto ke sini</p>
-                        <p class="text-gray-500 text-xs">Format: JPG, PNG. Pastikan wajah terlihat jelas.</p>
+                        <div>
+                            <p class="text-sm font-medium text-gray-200">Klik atau tarik foto ke area ini</p>
+                            <p class="text-xs text-gray-400 mt-1">Gunakan foto berwajah jelas dengan pencahayaan baik</p>
+                        </div>
                     </div>
 
-                    <div id="imagePreviewContainer" class="hidden absolute inset-0 bg-gray-900 flex items-center justify-center">
-                        <img id="imagePreview" src="" alt="Preview" class="h-full w-full object-contain">
-                        <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i class="fa-solid fa-pen text-3xl mb-2"></i>
-                            <span class="text-sm font-medium">Ganti Foto</span>
+                    <div id="imagePreviewContainer" class="hidden absolute inset-0 bg-gray-950 flex items-center justify-center">
+                        <img id="imagePreview" src="" alt="Preview Wajah" class="max-h-full max-w-full object-contain">
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-2">
+                            <i class="fa-solid fa-arrow-rotate-right text-xl"></i>
+                            <span class="text-xs font-medium">Ganti Foto Asli</span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Area Pilihan Outfit -->
-            <div>
-                <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
-                    <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex justify-center items-center text-sm">2</span> 
-                    Pilih Gaya Pakaian
-                </h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="outfitContainer">
-                    <button class="outfit-btn selected glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Jas formal profesional yang rapi, gaya eksekutif">
-                        <i class="fa-solid fa-user-tie mb-1 block text-lg"></i> Jas Formal
-                    </button>
-                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Kemeja Batik tradisional Indonesia yang mewah dan elegan">
-                        <i class="fa-solid fa-shirt mb-1 block text-lg"></i> Batik
-                    </button>
-                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Pakaian kasual santai yang modis, t-shirt dan jaket ringan">
-                        <i class="fa-solid fa-mug-hot mb-1 block text-lg"></i> Kasual
-                    </button>
-                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Jaket kulit hitam bergaya streetwear yang keren">
-                        <i class="fa-solid fa-motorcycle mb-1 block text-lg"></i> Jaket Kulit
-                    </button>
-                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Pakaian gaya cyberpunk futuristik dengan aksen neon">
-                        <i class="fa-brands fa-space-awesome mb-1 block text-lg"></i> Cyberpunk
-                    </button>
-                    <button class="outfit-btn glass-panel border border-gray-600 rounded-lg py-3 px-2 text-sm font-medium transition hover:bg-gray-700" data-outfit="Pakaian musim dingin, sweater rajut tebal dan syal">
-                        <i class="fa-solid fa-snowflake mb-1 block text-lg"></i> Musim Dingin
-                    </button>
+                <!-- Video Modal Capture Kamera -->
+                <div id="webcamModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+                    <div class="glass-panel p-4 rounded-2xl max-w-md w-full flex flex-col gap-3">
+                        <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                            <h3 class="text-sm font-bold text-gray-200">Ambil Foto Webcam</h3>
+                            <button id="closeWebcamBtn" class="text-gray-400 hover:text-white text-lg">&times;</button>
+                        </div>
+                        <video id="webcamVideo" autoplay playsinline class="w-full h-64 bg-black rounded-lg object-cover"></video>
+                        <button id="captureBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-circle text-red-500 animate-pulse"></i> Ambil Jepretan
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tombol Generate -->
-            <div class="mt-auto pt-4">
-                <button id="generateBtn" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-transform transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2" disabled>
-                    <i class="fa-solid fa-wand-magic"></i> Mulai Generate
-                </button>
+            <!-- Step 2: Pilih Outfit -->
+            <div class="glass-panel rounded-2xl p-5 flex flex-col gap-4">
+                <h2 class="text-lg font-semibold flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+                    Pilih Gaya Outfit AI
+                </h2>
+
+                <div class="grid grid-cols-2 gap-2.5" id="outfitGrid">
+                    <!-- Outfit Buttons -->
+                    <button class="outfit-card selected border border-gray-700 rounded-xl p-3 text-left transition flex flex-col gap-1 bg-gray-800/40" data-outfit="Jas eksekutif formal hitam premium, kemeja putih rapi, dan dasi elegan">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-user-tie text-blue-400 text-lg"></i>
+                            <span class="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">Executive</span>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-200">Jas Formal</span>
+                    </button>
+
+                    <button class="outfit-card border border-gray-700 rounded-xl p-3 text-left transition flex flex-col gap-1 bg-gray-800/40" data-outfit="Kemeja Batik tradisional Indonesia motif sutra mewah, warna elegan kontemporer">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-shirt text-amber-400 text-lg"></i>
+                            <span class="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">Etnik</span>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-200">Batik Modern</span>
+                    </button>
+
+                    <button class="outfit-card border border-gray-700 rounded-xl p-3 text-left transition flex flex-col gap-1 bg-gray-800/40" data-outfit="Pakaian kasual santai yang modis, t-shirt premium dengan outer denim jaket ringan">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-mug-saucer text-emerald-400 text-lg"></i>
+                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Casual</span>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-200">Kasual Denim</span>
+                    </button>
+
+                    <button class="outfit-card border border-gray-700 rounded-xl p-3 text-left transition flex flex-col gap-1 bg-gray-800/40" data-outfit="Jaket kulit hitam biker premium gaya streetwear maskulin/feminin dengan detail zipper">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-motorcycle text-purple-400 text-lg"></i>
+                            <span class="text-[10px] text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded">Street</span>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-200">Jaket Kulit</span>
+                    </button>
+
+                    <button class="outfit-card border border-gray-700 rounded-xl p-3 text-left transition flex flex-col gap-1 bg-gray-800/40" data-outfit="Outfit Kebaya atau gaun tradisional elegan dengan detail payet dan sulaman halus">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-gem text-pink-400 text-lg"></i>
+                            <span class="text-[10px] text-pink-400 bg-pink-500/10 px-1.5 py-0.5 rounded">Traditional</span>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-200">Kebaya / Gaun</span>
+                    </button>
+
+                    <button class="outfit-card border border-gray-700 rounded-xl p-3 text-left transition flex flex-col gap-1 bg-gray-800/40" data-outfit="Pakaian cyberpunk sci-fi futuristik dengan aksen pencahayaan neon cyan dan keunguan">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-robot text-cyan-400 text-lg"></i>
+                            <span class="text-[10px] text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">Sci-Fi</span>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-200">Cyberpunk</span>
+                    </button>
+                </div>
+
+                <!-- Custom Outfit Textarea -->
+                <div class="mt-2">
+                    <label for="customOutfitInput" class="text-xs font-medium text-gray-300 block mb-1.5">Atau ketik kustomisasi pakaian:</label>
+                    <input type="text" id="customOutfitInput" placeholder="Contoh: Seragam Pilot, Hoodie Oversized, Blazer Musim Dingin..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-blue-500 transition">
+                </div>
             </div>
+
+            <!-- Tombol Kunci Generate -->
+            <button id="generateBtn" disabled class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-900/30 transition transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                <i class="fa-solid fa-sparkles"></i>
+                <span>Generate Outfit Close-Up</span>
+            </button>
         </section>
 
-        <!-- Kolom Kanan: Hasil & Galeri -->
-        <section class="flex flex-col gap-6">
+        <!-- Display Hasil Utama & Galeri (7 Kolom) -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
             
-            <!-- Hasil Utama -->
-            <div class="glass-panel rounded-2xl p-6 flex flex-col h-[500px]">
-                <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
-                    <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex justify-center items-center text-sm">3</span> 
-                    Hasil Closeup
-                </h2>
-                
-                <div class="flex-1 bg-gray-900 rounded-xl border border-gray-700 relative overflow-hidden flex flex-col items-center justify-center">
-                    
-                    <!-- Loading State -->
-                    <div id="loadingState" class="hidden absolute inset-0 bg-gray-900/90 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
-                        <div class="loader mb-4"></div>
-                        <p class="text-blue-400 font-medium animate-pulse">Sedang merias wajah dan mengganti pakaian...</p>
-                        <p class="text-xs text-gray-500 mt-2 text-center px-6">Proses ini menggunakan AI Gemini untuk menganalisis dan mempertahankan wajah Anda dengan presisi.</p>
-                    </div>
-
-                    <!-- Placeholder -->
-                    <div id="resultPlaceholder" class="text-gray-500 flex flex-col items-center">
-                        <i class="fa-regular fa-image text-5xl mb-3 opacity-50"></i>
-                        <p>Hasil foto akan muncul di sini</p>
-                    </div>
-
-                    <!-- Final Image -->
-                    <img id="finalImage" src="" alt="Hasil Generate" class="hidden h-full w-full object-cover">
+            <!-- Hasil Close-Up Utama -->
+            <div class="glass-panel rounded-2xl p-6 flex flex-col min-h-[520px] relative">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+                        Hasil Foto Close-Up
+                    </h2>
+                    <span id="currentStatusTag" class="text-xs bg-gray-800 text-gray-400 px-3 py-1 rounded-full border border-gray-700">Siap Generasi</span>
                 </div>
 
-                <!-- Aksi -->
-                <div class="mt-4 flex gap-3">
-                    <a id="downloadBtn" href="#" download="ai_outfit_result.png" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-medium py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition disabled:opacity-50 pointer-events-none opacity-50 text-center">
-                        <i class="fa-solid fa-download"></i> Unduh Foto
+                <!-- Canvas Preview Container -->
+                <div class="flex-1 bg-gray-950 rounded-xl border border-gray-800 relative overflow-hidden flex items-center justify-center group min-h-[380px]">
+                    
+                    <!-- Loading Indicator -->
+                    <div id="loadingOverlay" class="hidden absolute inset-0 bg-gray-950/90 z-20 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+                        <div class="loader-spinner mb-4"></div>
+                        <h4 class="text-blue-400 font-bold text-base animate-pulse mb-1" id="loadingText">Menganalisis Wajah & Mengganti Outfit...</h4>
+                        <p class="text-xs text-gray-400 max-w-xs leading-relaxed">Model AI Gemini 3.1 Flash Image sedang mempertahankan struktur wajah asli Anda 100% serta menyesuaikan pencahayaanclose-up studio.</p>
+                    </div>
+
+                    <!-- Placeholder Kosong -->
+                    <div id="resultPlaceholder" class="flex flex-col items-center justify-center text-gray-600 p-8 text-center">
+                        <div class="w-20 h-20 rounded-full bg-gray-900 flex items-center justify-center mb-3 border border-gray-800">
+                            <i class="fa-regular fa-image text-3xl text-gray-500"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-400">Belum Ada Hasil Generate</p>
+                        <p class="text-xs text-gray-600 max-w-xs mt-1">Unggah foto wajah Anda dan pilih gaya pakaian untuk memulai.</p>
+                    </div>
+
+                    <!-- Gambar Hasil Akhir -->
+                    <img id="resultImage" src="" alt="Hasil Generate AI" class="hidden w-full h-full object-cover rounded-xl transition-all duration-300">
+
+                    <!-- Floating Action Buttons on Hover -->
+                    <div id="resultControls" class="hidden absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <button id="compareBtn" class="bg-gray-900/80 hover:bg-black text-white text-xs px-3 py-2 rounded-lg border border-gray-700 backdrop-blur-sm flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-code-compare"></i> Tahan Bandingkan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Bar Download & Share -->
+                <div class="mt-4 flex flex-wrap gap-3">
+                    <a id="downloadBtn" href="#" download="outfit_closeup_ai.png" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm transition opacity-50 pointer-events-none shadow-lg shadow-emerald-950/30">
+                        <i class="fa-solid fa-download"></i> Unduh Hasil Close-Up
                     </a>
                 </div>
             </div>
 
-            <!-- Galeri Mini (Beberapa Outfit) -->
-            <div class="glass-panel rounded-2xl p-6">
-                <h3 class="text-lg font-medium mb-3">Riwayat Hasil (Klik untuk lihat)</h3>
-                <div id="galleryContainer" class="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
-                    <p class="text-gray-500 text-sm italic w-full text-center py-4" id="galleryEmpty">Belum ada foto yang dihasilkan.</p>
-                    <!-- Thumbnail akan ditambahkan via JS -->
+            <!-- Galeri Riwayat Beberapa Outfit -->
+            <div class="glass-panel rounded-2xl p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-gray-200 flex items-center gap-2">
+                        <i class="fa-solid fa-images text-blue-400"></i> Riwayat Outfit Dihasilkan
+                    </h3>
+                    <span id="galleryCount" class="text-xs text-gray-400">0 Foto</span>
+                </div>
+                
+                <div id="galleryList" class="flex gap-3 overflow-x-auto pb-2 custom-scrollbar min-h-[90px] items-center">
+                    <p id="galleryEmptyText" class="text-xs text-gray-500 italic w-full text-center py-4">Setiap hasil generate outfit akan tersimpan di sini untuk dibandingkan.</p>
                 </div>
             </div>
-        </section>
 
+        </section>
     </main>
 
-    <!-- Toast Notification -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm"></div>
 
     <script>
-        // --- State Management ---
         const state = {
-            uploadedFileBase64: null,
-            uploadedMimeType: null,
-            selectedOutfitText: "Jas formal profesional yang rapi, gaya eksekutif", // Default
+            uploadedBase64: null,
+            uploadedMimeType: "image/jpeg",
+            selectedOutfitPrompt: "Jas eksekutif formal hitam premium, kemeja putih rapi, dan dasi elegan",
+            history: [],
             isGenerating: false,
-            gallery: [] // Menyimpan riwayat gambar
+            webcamStream: null
         };
 
-        // --- DOM Elements ---
+        // DOM Elements
         const els = {
             fileInput: document.getElementById('fileInput'),
+            dropZone: document.getElementById('dropZone'),
             uploadPlaceholder: document.getElementById('uploadPlaceholder'),
             imagePreviewContainer: document.getElementById('imagePreviewContainer'),
             imagePreview: document.getElementById('imagePreview'),
-            outfitBtns: document.querySelectorAll('.outfit-btn'),
+            outfitCards: document.querySelectorAll('.outfit-card'),
+            customOutfitInput: document.getElementById('customOutfitInput'),
             generateBtn: document.getElementById('generateBtn'),
-            loadingState: document.getElementById('loadingState'),
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            loadingText: document.getElementById('loadingText'),
             resultPlaceholder: document.getElementById('resultPlaceholder'),
-            finalImage: document.getElementById('finalImage'),
+            resultImage: document.getElementById('resultImage'),
+            resultControls: document.getElementById('resultControls'),
+            compareBtn: document.getElementById('compareBtn'),
             downloadBtn: document.getElementById('downloadBtn'),
-            galleryContainer: document.getElementById('galleryContainer'),
-            galleryEmpty: document.getElementById('galleryEmpty'),
-            toastContainer: document.getElementById('toastContainer')
+            currentStatusTag: document.getElementById('currentStatusTag'),
+            galleryList: document.getElementById('galleryList'),
+            galleryEmptyText: document.getElementById('galleryEmptyText'),
+            galleryCount: document.getElementById('galleryCount'),
+            toastContainer: document.getElementById('toastContainer'),
+            webcamBtn: document.getElementById('webcamBtn'),
+            webcamModal: document.getElementById('webcamModal'),
+            webcamVideo: document.getElementById('webcamVideo'),
+            captureBtn: document.getElementById('captureBtn'),
+            closeWebcamBtn: document.getElementById('closeWebcamBtn')
         };
 
-        // --- Event Listeners ---
-
-        // 1. Handling File Upload
+        // File Upload Handlers
         els.fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            handleFileSelection(file);
+            if (e.target.files.length) handleFile(e.target.files[0]);
         });
 
-        // Drag & Drop handling
-        const dropZone = document.getElementById('dropZone');
-        dropZone.addEventListener('dragover', (e) => {
+        // Drag & Drop
+        els.dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropZone.classList.add('border-blue-500', 'bg-blue-900/20');
+            els.dropZone.classList.add('border-blue-500', 'bg-blue-900/10');
         });
-        dropZone.addEventListener('dragleave', (e) => {
+
+        els.dropZone.addEventListener('dragleave', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('border-blue-500', 'bg-blue-900/20');
+            els.dropZone.classList.remove('border-blue-500', 'bg-blue-900/10');
         });
-        dropZone.addEventListener('drop', (e) => {
+
+        els.dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('border-blue-500', 'bg-blue-900/20');
+            els.dropZone.classList.remove('border-blue-500', 'bg-blue-900/10');
             if (e.dataTransfer.files.length) {
                 els.fileInput.files = e.dataTransfer.files;
-                handleFileSelection(e.dataTransfer.files[0]);
+                handleFile(e.dataTransfer.files[0]);
             }
         });
 
-        // 2. Handling Outfit Selection
-        els.outfitBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove selected class from all
-                els.outfitBtns.forEach(b => b.classList.remove('selected'));
-                // Add to clicked
-                btn.classList.add('selected');
-                // Update state
-                state.selectedOutfitText = btn.getAttribute('data-outfit');
+        // Outfit Selection
+        els.outfitCards.forEach(card => {
+            card.addEventListener('click', () => {
+                els.outfitCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                state.selectedOutfitPrompt = card.getAttribute('data-outfit');
+                els.customOutfitInput.value = ''; // Reset custom text if card picked
             });
         });
 
-        // 3. Handling Generate Button
-        els.generateBtn.addEventListener('click', handleGenerate);
+        els.customOutfitInput.addEventListener('input', (e) => {
+            if (e.target.value.trim() !== '') {
+                els.outfitCards.forEach(c => c.classList.remove('selected'));
+                state.selectedOutfitPrompt = e.target.value.trim();
+            }
+        });
 
-        // --- Helper Functions ---
+        // Webcam Handling
+        els.webcamBtn.addEventListener('click', async () => {
+            try {
+                state.webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                els.webcamVideo.srcObject = state.webcamStream;
+                els.webcamModal.classList.remove('hidden');
+            } catch (err) {
+                showToast('Gagal mengakses kamera perangkat.', 'error');
+            }
+        });
 
-        function handleFileSelection(file) {
-            if (!file) return;
+        els.closeWebcamBtn.addEventListener('click', stopWebcam);
+
+        function stopWebcam() {
+            if (state.webcamStream) {
+                state.webcamStream.getTracks().forEach(track => track.stop());
+                state.webcamStream = null;
+            }
+            els.webcamModal.classList.add('hidden');
+        }
+
+        els.captureBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = els.webcamVideo.videoWidth || 640;
+            canvas.height = els.webcamVideo.videoHeight || 480;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(els.webcamVideo, 0, 0, canvas.width, canvas.height);
             
-            // Validasi tipe file
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            state.uploadedBase64 = dataUrl.split(',')[1];
+            state.uploadedMimeType = 'image/jpeg';
+            
+            els.imagePreview.src = dataUrl;
+            els.uploadPlaceholder.classList.add('hidden');
+            els.imagePreviewContainer.classList.remove('hidden');
+            els.generateBtn.removeAttribute('disabled');
+            
+            stopWebcam();
+            showToast('Foto webcam berhasil diambil!', 'success');
+        });
+
+        function handleFile(file) {
             if (!file.type.startsWith('image/')) {
-                showToast("Tolong unggah file berupa gambar (JPG, PNG).", "error");
+                showToast('Tolong pilih file berupa gambar (JPG/PNG/WEBP)', 'error');
                 return;
             }
 
             const reader = new FileReader();
             reader.onload = (e) => {
-                const result = e.target.result; // Data URL
-                
-                // Pisahkan base64 data dan mime type untuk API
-                const mimeType = result.split(';')[0].split(':')[1];
-                const base64Data = result.split(',')[1];
-                
-                state.uploadedFileBase64 = base64Data;
-                state.uploadedMimeType = mimeType;
+                const fullResult = e.target.result;
+                state.uploadedMimeType = fullResult.split(';')[0].split(':')[1] || 'image/jpeg';
+                state.uploadedBase64 = fullResult.split(',')[1];
 
-                // Tampilkan Preview
-                els.imagePreview.src = result;
+                els.imagePreview.src = fullResult;
                 els.uploadPlaceholder.classList.add('hidden');
                 els.imagePreviewContainer.classList.remove('hidden');
-                
-                // Aktifkan tombol generate
                 els.generateBtn.removeAttribute('disabled');
-                
-                showToast("Foto berhasil dimuat!", "success");
+
+                showToast('Foto wajah berhasil dimuat.', 'success');
             };
             reader.readAsDataURL(file);
         }
 
-        async function handleGenerate() {
-            if (!state.uploadedFileBase64) {
-                showToast("Harap unggah foto terlebih dahulu.", "error");
-                return;
+        async function fetchWithRetry(url, options, maxRetries = 3) {
+            let delay = 1000;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return response;
+                    
+                    // Throttle or temporary server error
+                    if (response.status === 429 || response.status >= 500) {
+                        await new Promise(res => setTimeout(res, delay));
+                        delay *= 2;
+                        continue;
+                    }
+                    
+                    const errText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errText}`);
+                } catch (err) {
+                    if (i === maxRetries - 1) throw err;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
             }
+        }
 
-            // Update UI State
+        els.generateBtn.addEventListener('click', handleGenerate);
+
+        async function handleGenerate() {
+            if (!state.uploadedBase64 || state.isGenerating) return;
+
             state.isGenerating = true;
             els.generateBtn.setAttribute('disabled', 'true');
-            els.loadingState.classList.remove('hidden');
-            els.resultPlaceholder.classList.add('hidden');
-            els.finalImage.classList.add('hidden');
-            els.downloadBtn.classList.add('opacity-50', 'pointer-events-none');
+            els.loadingOverlay.classList.remove('hidden');
+            els.loadingText.innerText = "Menganalisis Wajah & Mengganti Outfit...";
+            els.currentStatusTag.innerText = "Proses AI...";
+            els.currentStatusTag.className = "text-xs bg-blue-900/50 text-blue-300 px-3 py-1 rounded-full border border-blue-700 animate-pulse";
+
+            const selectedPromptText = els.customOutfitInput.value.trim() !== '' ? 
+                els.customOutfitInput.value.trim() : state.selectedOutfitPrompt;
+
+            const prompt = `Ganti pakaian orang dalam gambar dengan outfit berikut: "${selectedPromptText}".
+INSTRUKSI KHUSUS DAN WAJIB:
+1. PERTAHANKAN WAJAH: Wajah asli orang tersebut (bentuk mata, hidung, bibir, ekspresi, warna kulit, dan struktur tulang wajah) WAJIB 100% SAMA PERSIS dan TIDAK Boleh diubah sama sekali.
+2. TAMPILAN CLOSE-UP: Buat bingkai foto menjadi Close-Up Portrait setengah badan (head & upper body shot).
+3. INTEGRASI: Adaptasikan baju baru secara realistis dengan pencahayaan studio yang tajam dan natural.`;
+
+            const payload = {
+                contents: [{
+                    role: "user",
+                    parts: [
+                        { text: prompt },
+                        {
+                            inlineData: {
+                                mimeType: state.uploadedMimeType,
+                                data: state.uploadedBase64
+                            }
+                        }
+                    ]
+                }],
+                generationConfig: {
+                    responseModalities: ['TEXT', 'IMAGE']
+                }
+            };
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
 
             try {
-                // Siapkan prompt super spesifik untuk menjaga wajah dan crop closeup
-                const prompt = `Tugas: Ubah pakaian orang dalam gambar menjadi: ${state.selectedOutfitText}.
-ATURAN SANGAT PENTING: 
-1. Anda WAJIB mempertahankan wajah asli (mata, hidung, mulut, struktur wajah, warna kulit) SAMA PERSIS 100% tanpa perubahan sedikitpun. Ini bukan pembuatan karakter baru, ini adalah manipulasi pakaian.
-2. Hasil akhir foto harus berbingkai 'Close-up Portrait' (setengah badan ke atas) dengan fokus pada wajah dan pakaian atas.
-3. Sesuaikan pencahayaan agar menyatu secara realistis.`;
-
-                const payload = {
-                    contents: [{
-                        role: "user",
-                        parts: [
-                            { text: prompt },
-                            {
-                                inlineData: {
-                                    mimeType: state.uploadedMimeType || "image/jpeg",
-                                    data: state.uploadedFileBase64
-                                }
-                            }
-                        ]
-                    }],
-                    generationConfig: {
-                        responseModalities: ['IMAGE'],
-                        // Menggunakan aspect ratio portrait untuk closeup terbaik
-                        imageConfig: { aspectRatio: "3:4" }
-                    }
-                };
-
-                // Panggil API (Key kosong di-handle oleh environment Canvas)
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
-
-                const response = await fetch(apiUrl, {
+                const response = await fetchWithRetry(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
-                }
-
                 const result = await response.json();
                 
-                // Ekstrak gambar dari respons
-                const part = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-                
-                if (part && part.inlineData) {
-                    const imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                    displayResult(imageUrl);
+                let imageUrl = null;
+                const candidates = result.candidates;
+                if (candidates && candidates.length > 0) {
+                    const parts = candidates[0].content?.parts || [];
+                    for (const part of parts) {
+                        if (part.inlineData) {
+                            imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                            break;
+                        }
+                    }
+                }
+
+                if (imageUrl) {
+                    displayResult(imageUrl, selectedPromptText);
                 } else {
-                    throw new Error("Gambar gagal dihasilkan atau format respons tidak dikenali.");
+                    throw new Error('Hasil gambar tidak ditemukan dalam respon API.');
                 }
 
             } catch (error) {
-                console.error("Generation Error:", error);
-                showToast("Terjadi kesalahan saat memproses gambar. Coba lagi.", "error");
-                
-                // Revert UI if error
-                els.resultPlaceholder.classList.remove('hidden');
-                els.loadingState.classList.add('hidden');
+                console.error("Generation error:", error);
+                showToast("Gagal memproses gambar. Silakan coba lagi.", "error");
+                els.currentStatusTag.innerText = "Gagal";
+                els.currentStatusTag.className = "text-xs bg-red-900/50 text-red-300 px-3 py-1 rounded-full border border-red-700";
             } finally {
                 state.isGenerating = false;
                 els.generateBtn.removeAttribute('disabled');
+                els.loadingOverlay.classList.add('hidden');
             }
         }
 
-        function displayResult(imageUrl) {
-            // Sembunyikan loading, tampilkan gambar
-            els.loadingState.classList.add('hidden');
-            els.finalImage.src = imageUrl;
-            els.finalImage.classList.remove('hidden');
+        function displayResult(imageUrl, outfitTitle) {
+            els.resultPlaceholder.classList.add('hidden');
+            els.resultImage.src = imageUrl;
+            els.resultImage.classList.remove('hidden');
+            els.resultControls.classList.remove('hidden');
 
-            // Setup tombol download
             els.downloadBtn.href = imageUrl;
-            // Buat nama file unik
-            els.downloadBtn.download = `outfit_closeup_${new Date().getTime()}.png`;
+            els.downloadBtn.download = `closeup_outfit_${Date.now()}.png`;
             els.downloadBtn.classList.remove('opacity-50', 'pointer-events-none');
 
-            // Simpan ke galeri
-            addToGallery(imageUrl);
-            showToast("Foto berhasil dibuat!", "success");
+            els.currentStatusTag.innerText = "Selesai";
+            els.currentStatusTag.className = "text-xs bg-emerald-900/50 text-emerald-300 px-3 py-1 rounded-full border border-emerald-700";
+
+            addToHistory(imageUrl, outfitTitle);
+            showToast("Foto close-up outfit baru selesai dibuat!", "success");
         }
 
-        function addToGallery(imageUrl) {
-            if (state.gallery.length === 0) {
-                els.galleryEmpty.style.display = 'none';
+        function addToHistory(imageUrl, outfitTitle) {
+            if (state.history.length === 0) {
+                els.galleryEmptyText.classList.add('hidden');
             }
-            
-            // Simpan state
-            state.gallery.unshift(imageUrl);
 
-            // Buat elemen thumbnail
-            const thumb = document.createElement('img');
-            thumb.src = imageUrl;
-            thumb.className = "h-20 w-20 object-cover rounded-lg border-2 border-transparent hover:border-blue-500 cursor-pointer flex-shrink-0 transition-colors";
+            state.history.unshift({ url: imageUrl, title: outfitTitle });
+            els.galleryCount.innerText = `${state.history.length} Foto`;
+
+            const item = document.createElement('div');
+            item.className = "relative group flex-shrink-0 cursor-pointer rounded-xl overflow-hidden border-2 border-transparent hover:border-blue-500 transition-all w-20 h-20 bg-gray-900";
             
-            // Ketika thumbnail diklik, tampilkan di penampil utama
-            thumb.addEventListener('click', () => {
-                els.finalImage.src = imageUrl;
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${outfitTitle}" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <i class="fa-solid fa-eye text-white text-xs"></i>
+                </div>
+            `;
+
+            item.addEventListener('click', () => {
+                els.resultImage.src = imageUrl;
                 els.downloadBtn.href = imageUrl;
-                // Highlight thumbnail aktif
-                document.querySelectorAll('#galleryContainer img').forEach(img => img.classList.remove('border-blue-500'));
-                thumb.classList.add('border-blue-500');
+                document.querySelectorAll('#galleryList > div').forEach(el => el.classList.remove('border-blue-500'));
+                item.classList.add('border-blue-500');
             });
 
-            // Tambahkan ke container di posisi paling depan
-            els.galleryContainer.insertBefore(thumb, els.galleryContainer.firstChild);
+            els.galleryList.insertBefore(item, els.galleryList.firstChild);
             
-            // Set as active
-            document.querySelectorAll('#galleryContainer img').forEach(img => img.classList.remove('border-blue-500'));
-            thumb.classList.add('border-blue-500');
+            // Highlight current
+            document.querySelectorAll('#galleryList > div').forEach(el => el.classList.remove('border-blue-500'));
+            item.classList.add('border-blue-500');
         }
 
-        // --- Custom Toast Notification ---
+        // Compare Before / After Button Hold
+        let originalSrc = null;
+        els.compareBtn.addEventListener('mousedown', startCompare);
+        els.compareBtn.addEventListener('touchstart', startCompare);
+
+        els.compareBtn.addEventListener('mouseup', stopCompare);
+        els.compareBtn.addEventListener('mouseleave', stopCompare);
+        els.compareBtn.addEventListener('touchend', stopCompare);
+
+        function startCompare() {
+            if (els.imagePreview.src && els.resultImage.src) {
+                originalSrc = els.resultImage.src;
+                els.resultImage.src = els.imagePreview.src;
+            }
+        }
+
+        function stopCompare() {
+            if (originalSrc) {
+                els.resultImage.src = originalSrc;
+                originalSrc = null;
+            }
+        }
+
         function showToast(message, type = "info") {
             const toast = document.createElement('div');
-            
-            // Warna berdasarkan tipe
-            let bgClass = "bg-gray-800 border-gray-600";
             let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
-            if (type === "success") {
-                bgClass = "bg-green-900 border-green-700 text-white";
-                icon = '<i class="fa-solid fa-circle-check text-green-400"></i>';
-            } else if (type === "error") {
-                bgClass = "bg-red-900 border-red-700 text-white";
-                icon = '<i class="fa-solid fa-triangle-exclamation text-red-400"></i>';
+            let borderClass = 'border-gray-700 bg-gray-900 text-gray-200';
+
+            if (type === 'success') {
+                icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+                borderClass = 'border-emerald-700/60 bg-emerald-950/90 text-emerald-100';
+            } else if (type === 'error') {
+                icon = '<i class="fa-solid fa-circle-exclamation text-red-400"></i>';
+                borderClass = 'border-red-700/60 bg-red-950/90 text-red-100';
             }
 
-            toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl border ${bgClass} toast-enter-active`;
-            toast.innerHTML = `${icon} <span class="text-sm font-medium">${message}</span>`;
-            
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-md text-xs font-medium toast-active ${borderClass}`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+
             els.toastContainer.appendChild(toast);
 
-            // Hilangkan setelah 3 detik
             setTimeout(() => {
-                toast.classList.replace('toast-enter-active', 'toast-exit-active');
-                setTimeout(() => {
-                    toast.remove();
-                }, 300);
-            }, 3000);
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
         }
     </script>
 </body>
