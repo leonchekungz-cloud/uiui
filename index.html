@@ -58,6 +58,7 @@
 </head>
 <body class="min-h-screen flex flex-col items-center py-6 px-4 md:px-8">
 
+    <!-- Header Section -->
     <header class="w-full max-w-6xl flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-gray-800 pb-6">
         <div>
             <div class="flex items-center gap-3">
@@ -70,9 +71,16 @@
             </div>
             <p class="text-gray-400 text-sm mt-1">Ganti gaya pakaian dengan AI Gemini. Wajah asli dijamin 100% konsisten dalam tampilan close-up portrait.</p>
         </div>
-        <div class="flex items-center gap-2 bg-blue-950/50 border border-blue-500/30 px-3 py-1.5 rounded-full text-xs text-blue-300">
-            <i class="fa-solid fa-shield-halved text-blue-400"></i>
-            <span>Facial Identity Lock Active</span>
+        
+        <div class="flex items-center gap-3">
+            <button id="apiKeyModalBtn" class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3.5 py-1.5 rounded-full text-xs text-gray-200 transition">
+                <i class="fa-solid fa-key text-amber-400"></i>
+                <span id="apiKeyStatusText">Set Gemini API Key</span>
+            </button>
+            <div class="hidden sm:flex items-center gap-2 bg-blue-950/50 border border-blue-500/30 px-3 py-1.5 rounded-full text-xs text-blue-300">
+                <i class="fa-solid fa-shield-halved text-blue-400"></i>
+                <span>Facial Identity Lock Active</span>
+            </div>
         </div>
     </header>
 
@@ -138,7 +146,6 @@
                 </h2>
 
                 <div class="grid grid-cols-2 gap-2.5" id="outfitGrid">
-                    <!-- Outfit Buttons -->
                     <button class="outfit-card selected border border-gray-700 rounded-xl p-3 text-left transition flex flex-col gap-1 bg-gray-800/40" data-outfit="Jas eksekutif formal hitam premium, kemeja putih rapi, dan dasi elegan">
                         <div class="flex items-center justify-between">
                             <i class="fa-solid fa-user-tie text-blue-400 text-lg"></i>
@@ -197,7 +204,7 @@
 
             <!-- Tombol Kunci Generate -->
             <button id="generateBtn" disabled class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-900/30 transition transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                <i class="fa-solid fa-sparkles"></i>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
                 <span>Generate Outfit Close-Up</span>
             </button>
         </section>
@@ -222,7 +229,7 @@
                     <div id="loadingOverlay" class="hidden absolute inset-0 bg-gray-950/90 z-20 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
                         <div class="loader-spinner mb-4"></div>
                         <h4 class="text-blue-400 font-bold text-base animate-pulse mb-1" id="loadingText">Menganalisis Wajah & Mengganti Outfit...</h4>
-                        <p class="text-xs text-gray-400 max-w-xs leading-relaxed">Model AI Gemini 3.1 Flash Image sedang mempertahankan struktur wajah asli Anda 100% serta menyesuaikan pencahayaanclose-up studio.</p>
+                        <p class="text-xs text-gray-400 max-w-xs leading-relaxed">Model AI Gemini Flash Image sedang mempertahankan struktur wajah asli Anda 100% serta menyesuaikan pencahayaan close-up studio.</p>
                     </div>
 
                     <!-- Placeholder Kosong -->
@@ -245,7 +252,7 @@
                     </div>
                 </div>
 
-                <!-- Action Bar Download & Share -->
+                <!-- Action Bar Download -->
                 <div class="mt-4 flex flex-wrap gap-3">
                     <a id="downloadBtn" href="#" download="outfit_closeup_ai.png" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm transition opacity-50 pointer-events-none shadow-lg shadow-emerald-950/30">
                         <i class="fa-solid fa-download"></i> Unduh Hasil Close-Up
@@ -270,6 +277,31 @@
         </section>
     </main>
 
+    <!-- Modal Pengaturan API Key -->
+    <div id="apiKeyModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="glass-panel p-6 rounded-2xl max-w-md w-full flex flex-col gap-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-3">
+                <h3 class="text-base font-bold text-gray-100 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-amber-400"></i> Konfigurasi Gemini API Key
+                </h3>
+                <button id="closeApiKeyModalBtn" class="text-gray-400 hover:text-white text-xl">&times;</button>
+            </div>
+            <p class="text-xs text-gray-300 leading-relaxed">
+                Aplikasi ini memanggil Gemini API secara langsung dari browser Anda. Dapatkan API Key gratis di 
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline font-semibold hover:text-blue-300">Google AI Studio</a>.
+            </p>
+            <div>
+                <label for="apiKeyInput" class="text-xs font-medium text-gray-400 block mb-1">API Key Gemini:</label>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-xs text-gray-200 focus:outline-none focus:border-blue-500 transition">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button id="saveApiKeyBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl text-xs transition">
+                    Simpan & Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm"></div>
 
@@ -280,7 +312,8 @@
             selectedOutfitPrompt: "Jas eksekutif formal hitam premium, kemeja putih rapi, dan dasi elegan",
             history: [],
             isGenerating: false,
-            webcamStream: null
+            webcamStream: null,
+            apiKey: localStorage.getItem('gemini_api_key') || ''
         };
 
         // DOM Elements
@@ -309,8 +342,49 @@
             webcamModal: document.getElementById('webcamModal'),
             webcamVideo: document.getElementById('webcamVideo'),
             captureBtn: document.getElementById('captureBtn'),
-            closeWebcamBtn: document.getElementById('closeWebcamBtn')
+            closeWebcamBtn: document.getElementById('closeWebcamBtn'),
+            apiKeyModalBtn: document.getElementById('apiKeyModalBtn'),
+            apiKeyModal: document.getElementById('apiKeyModal'),
+            closeApiKeyModalBtn: document.getElementById('closeApiKeyModalBtn'),
+            saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
+            apiKeyInput: document.getElementById('apiKeyInput'),
+            apiKeyStatusText: document.getElementById('apiKeyStatusText')
         };
+
+        // Update API Key Display Status
+        function updateApiKeyStatusDisplay() {
+            if (state.apiKey) {
+                els.apiKeyStatusText.innerText = "API Key Tersimpan";
+                els.apiKeyStatusText.classList.add("text-emerald-400");
+            } else {
+                els.apiKeyStatusText.innerText = "Set Gemini API Key";
+                els.apiKeyStatusText.classList.remove("text-emerald-400");
+            }
+        }
+        updateApiKeyStatusDisplay();
+
+        // API Key Modal Controls
+        els.apiKeyModalBtn.addEventListener('click', () => {
+            els.apiKeyInput.value = state.apiKey;
+            els.apiKeyModal.classList.remove('hidden');
+        });
+
+        els.closeApiKeyModalBtn.addEventListener('click', () => {
+            els.apiKeyModal.classList.add('hidden');
+        });
+
+        els.saveApiKeyBtn.addEventListener('click', () => {
+            const key = els.apiKeyInput.value.trim();
+            if (!key) {
+                showToast("API Key tidak boleh kosong!", "error");
+                return;
+            }
+            state.apiKey = key;
+            localStorage.setItem('gemini_api_key', key);
+            updateApiKeyStatusDisplay();
+            els.apiKeyModal.classList.add('hidden');
+            showToast("API Key berhasil disimpan!", "success");
+        });
 
         // File Upload Handlers
         els.fileInput.addEventListener('change', (e) => {
@@ -343,7 +417,7 @@
                 els.outfitCards.forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
                 state.selectedOutfitPrompt = card.getAttribute('data-outfit');
-                els.customOutfitInput.value = ''; // Reset custom text if card picked
+                els.customOutfitInput.value = '';
             });
         });
 
@@ -424,7 +498,6 @@
                     const response = await fetch(url, options);
                     if (response.ok) return response;
                     
-                    // Throttle or temporary server error
                     if (response.status === 429 || response.status >= 500) {
                         await new Promise(res => setTimeout(res, delay));
                         delay *= 2;
@@ -444,6 +517,12 @@
         els.generateBtn.addEventListener('click', handleGenerate);
 
         async function handleGenerate() {
+            if (!state.apiKey) {
+                showToast("Silakan masukkan Gemini API Key Anda terlebih dahulu.", "error");
+                els.apiKeyModal.classList.remove('hidden');
+                return;
+            }
+
             if (!state.uploadedBase64 || state.isGenerating) return;
 
             state.isGenerating = true;
@@ -480,8 +559,7 @@ INSTRUKSI KHUSUS DAN WAJIB:
                 }
             };
 
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${state.apiKey}`;
 
             try {
                 const response = await fetchWithRetry(apiUrl, {
@@ -512,7 +590,7 @@ INSTRUKSI KHUSUS DAN WAJIB:
 
             } catch (error) {
                 console.error("Generation error:", error);
-                showToast("Gagal memproses gambar. Silakan coba lagi.", "error");
+                showToast("Gagal memproses gambar. Periksa API Key atau coba lagi.", "error");
                 els.currentStatusTag.innerText = "Gagal";
                 els.currentStatusTag.className = "text-xs bg-red-900/50 text-red-300 px-3 py-1 rounded-full border border-red-700";
             } finally {
@@ -566,7 +644,6 @@ INSTRUKSI KHUSUS DAN WAJIB:
 
             els.galleryList.insertBefore(item, els.galleryList.firstChild);
             
-            // Highlight current
             document.querySelectorAll('#galleryList > div').forEach(el => el.classList.remove('border-blue-500'));
             item.classList.add('border-blue-500');
         }
