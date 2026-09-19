@@ -23,6 +23,13 @@
             background-color: rgba(59, 130, 246, 0.2);
             box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
         }
+        .accessory-chip.active {
+            border-color: #a855f7;
+            background-color: rgba(168, 85, 247, 0.2);
+            color: #f3e8ff;
+            font-weight: 600;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+        }
         .loader-spinner {
             border: 4px solid rgba(255, 255, 255, 0.1);
             border-left-color: #3b82f6;
@@ -202,10 +209,80 @@
                 </div>
             </div>
 
+            <!-- Step 3: Kustomisasi Aksesori & Styling Wajah -->
+            <div class="glass-panel rounded-2xl p-5 flex flex-col gap-4">
+                <h2 class="text-lg font-semibold flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+                    Aksesori & Styling Wajah
+                </h2>
+
+                <div class="space-y-3.5">
+                    <!-- Kacamata -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-300 flex items-center gap-1.5 mb-2">
+                            <i class="fa-solid fa-glasses text-blue-400"></i> Kacamata
+                        </label>
+                        <div class="flex flex-wrap gap-1.5" id="glassesGroup">
+                            <button class="accessory-chip active text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="glasses" data-val="Tanpa Kacamata">Tanpa Kacamata</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="glasses" data-val="Kacamata Hitam Designer Stylish">Kacamata Hitam</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="glasses" data-val="Kacamata Baca Frame Tipis Modern">Kacamata Baca</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="glasses" data-val="Kacamata Aviator Frame Gold">Aviator Gold</button>
+                        </div>
+                    </div>
+
+                    <!-- Topi -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-300 flex items-center gap-1.5 mb-2">
+                            <i class="fa-solid fa-hat-cowboy text-amber-400"></i> Topi / Penutup Kepala
+                        </label>
+                        <div class="flex flex-wrap gap-1.5" id="hatGroup">
+                            <button class="accessory-chip active text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hat" data-val="Tanpa Topi">Tanpa Topi</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hat" data-val="Topi Fedora Elegan Hitam">Fedora</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hat" data-val="Topi Beanie Rajut Kasual">Beanie</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hat" data-val="Topi Baseball Cap Keren">Baseball Cap</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hat" data-val="Topi Beret Perancis">Beret</button>
+                        </div>
+                    </div>
+
+                    <!-- Gaya Rambut -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-300 flex items-center gap-1.5 mb-2">
+                            <i class="fa-solid fa-scissors text-emerald-400"></i> Gaya Rambut
+                        </label>
+                        <div class="flex flex-wrap gap-1.5" id="hairGroup">
+                            <button class="accessory-chip active text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hair" data-val="Rambut Asli">Rambut Asli</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hair" data-val="Gaya Rambut Undercut Modern Rapi">Undercut</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hair" data-val="Gaya Rambut Panjang Bergelombang Soft Waves">Panjang Waves</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hair" data-val="Gaya Rambut Short Bob Chic">Short Bob</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="hair" data-val="Gaya Rambut Keriting Afro Stylish">Afro / Keriting</button>
+                        </div>
+                    </div>
+
+                    <!-- Perhiasan -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-300 flex items-center gap-1.5 mb-2">
+                            <i class="fa-solid fa-gem text-pink-400"></i> Perhiasan
+                        </label>
+                        <div class="flex flex-wrap gap-1.5" id="jewelGroup">
+                            <button class="accessory-chip active text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="jewel" data-val="Tanpa Perhiasan">Tanpa Perhiasan</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="jewel" data-val="Kalung Emas Minimalis Elegan">Kalung Emas</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="jewel" data-val="Anting-anting Berlian Sparkle">Anting Berlian</button>
+                            <button class="accessory-chip text-xs px-2.5 py-1 rounded-lg border border-gray-700 bg-gray-800 text-gray-300 hover:border-purple-500 transition" data-category="jewel" data-val="Set Perhiasan Mutiara Mewah">Set Mutiara</button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Accessory Input -->
+                    <div class="pt-1">
+                        <label for="customAccessoryInput" class="text-xs font-medium text-gray-300 block mb-1">Aksesori Tambahan Kustom:</label>
+                        <input type="text" id="customAccessoryInput" placeholder="Contoh: Masker Hitam, Scarf Sutra, Headphone Studio..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-purple-500 transition">
+                    </div>
+                </div>
+            </div>
+
             <!-- Tombol Kunci Generate -->
             <button id="generateBtn" disabled class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-900/30 transition transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>Generate Outfit Close-Up</span>
+                <span>Generate Outfit & Aksesori Close-Up</span>
             </button>
         </section>
 
@@ -216,7 +293,7 @@
             <div class="glass-panel rounded-2xl p-6 flex flex-col min-h-[520px] relative">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">4</span>
                         Hasil Foto Close-Up
                     </h2>
                     <span id="currentStatusTag" class="text-xs bg-gray-800 text-gray-400 px-3 py-1 rounded-full border border-gray-700">Siap Generasi</span>
@@ -310,6 +387,10 @@
             uploadedBase64: null,
             uploadedMimeType: "image/jpeg",
             selectedOutfitPrompt: "Jas eksekutif formal hitam premium, kemeja putih rapi, dan dasi elegan",
+            selectedGlasses: "Tanpa Kacamata",
+            selectedHat: "Tanpa Topi",
+            selectedHair: "Rambut Asli",
+            selectedJewelry: "Tanpa Perhiasan",
             history: [],
             isGenerating: false,
             webcamStream: null,
@@ -325,6 +406,8 @@
             imagePreview: document.getElementById('imagePreview'),
             outfitCards: document.querySelectorAll('.outfit-card'),
             customOutfitInput: document.getElementById('customOutfitInput'),
+            accessoryChips: document.querySelectorAll('.accessory-chip'),
+            customAccessoryInput: document.getElementById('customAccessoryInput'),
             generateBtn: document.getElementById('generateBtn'),
             loadingOverlay: document.getElementById('loadingOverlay'),
             loadingText: document.getElementById('loadingText'),
@@ -429,6 +512,23 @@
             }
         });
 
+        els.accessoryChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const category = chip.getAttribute('data-category');
+                const val = chip.getAttribute('data-val');
+
+                document.querySelectorAll(`.accessory-chip[data-category="${category}"]`).forEach(c => {
+                    c.classList.remove('active');
+                });
+                chip.classList.add('active');
+
+                if (category === 'glasses') state.selectedGlasses = val;
+                if (category === 'hat') state.selectedHat = val;
+                if (category === 'hair') state.selectedHair = val;
+                if (category === 'jewel') state.selectedJewelry = val;
+            });
+        });
+
         // Webcam Handling
         els.webcamBtn.addEventListener('click', async () => {
             try {
@@ -528,18 +628,27 @@
             state.isGenerating = true;
             els.generateBtn.setAttribute('disabled', 'true');
             els.loadingOverlay.classList.remove('hidden');
-            els.loadingText.innerText = "Menganalisis Wajah & Mengganti Outfit...";
+            els.loadingText.innerText = "Menganalisis Wajah, Outfit & Aksesori...";
             els.currentStatusTag.innerText = "Proses AI...";
             els.currentStatusTag.className = "text-xs bg-blue-900/50 text-blue-300 px-3 py-1 rounded-full border border-blue-700 animate-pulse";
 
             const selectedPromptText = els.customOutfitInput.value.trim() !== '' ? 
                 els.customOutfitInput.value.trim() : state.selectedOutfitPrompt;
 
-            const prompt = `Ganti pakaian orang dalam gambar dengan outfit berikut: "${selectedPromptText}".
+            let accessoryList = [];
+            if (state.selectedGlasses && state.selectedGlasses !== 'Tanpa Kacamata') accessoryList.push(`Kacamata: ${state.selectedGlasses}`);
+            if (state.selectedHat && state.selectedHat !== 'Tanpa Topi') accessoryList.push(`Topi/Penutup Kepala: ${state.selectedHat}`);
+            if (state.selectedHair && state.selectedHair !== 'Rambut Asli') accessoryList.push(`Gaya Rambut: ${state.selectedHair}`);
+            if (state.selectedJewelry && state.selectedJewelry !== 'Tanpa Perhiasan') accessoryList.push(`Perhiasan: ${state.selectedJewelry}`);
+            if (els.customAccessoryInput && els.customAccessoryInput.value.trim()) accessoryList.push(`Aksesori Tambahan: ${els.customAccessoryInput.value.trim()}`);
+
+            const accessoryPromptText = accessoryList.length > 0 ? ` Tambahkan/sesuaikan aksesori berikut secara presisi: [${accessoryList.join(', ')}].` : '';
+
+            const prompt = `Ganti pakaian orang dalam gambar dengan outfit berikut: "${selectedPromptText}".${accessoryPromptText}
 INSTRUKSI KHUSUS DAN WAJIB:
 1. PERTAHANKAN WAJAH: Wajah asli orang tersebut (bentuk mata, hidung, bibir, ekspresi, warna kulit, dan struktur tulang wajah) WAJIB 100% SAMA PERSIS dan TIDAK Boleh diubah sama sekali.
 2. TAMPILAN CLOSE-UP: Buat bingkai foto menjadi Close-Up Portrait setengah badan (head & upper body shot).
-3. INTEGRASI: Adaptasikan baju baru secara realistis dengan pencahayaan studio yang tajam dan natural.`;
+3. INTEGRASI REALISTIS: Adaptasikan baju dan aksesori baru secara realistis dengan pencahayaan studio yang tajam, bayangan yang natural, dan proporsi yang pas dengan posisi kepala/tubuh.`;
 
             const payload = {
                 contents: [{
